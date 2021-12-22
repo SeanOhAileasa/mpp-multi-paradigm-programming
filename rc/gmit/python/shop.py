@@ -46,11 +46,11 @@ def print_customer_update_shop_state(c,s):
      ii. updating shop state and;
     iii. return shop state to function main. 
 """
-    countNoProductMatch=0 # cart shop iterations
-    shoppingCartInvoice=0.0 # empty until add
-    canFillFullOrder=1 # assume is true
-    countOuterCustomer=0 # check equal countInnerShop
-    countInnerShop=0 # check equal countOuterCustomer
+    count_no_product_match=0 # cart shop iterations
+    shopping_cart_invoice=0.0 # empty until add
+    can_fill_full_order=1 # assume is true
+    count_outer_customer=0 # check equal count_inner_shop
+    count_inner_shop=0 # check equal count_outer_customer
 
     # print(f'CUSTOMER NAME: {c.name} \nCUSTOMER BUDGET: EUR{c.budget}') # original source code
     print(f'\n\n\nCUSTOMER NAME: {c.name} \nCUSTOMER BUDGET: EUR{c.budget:.2f}') # display purposes only
@@ -61,7 +61,7 @@ def print_customer_update_shop_state(c,s):
     #
     for item in c.shopping_list: # original source code
         countShopIterations=0 # cart shop iterations
-        countNoProductMatch=0 # reset next customer
+        count_no_product_match=0 # reset next customer
 
         print_product(item.product) # original source code
         print(f'{c.name} ORDERS {item.quantity:.0f} OF ABOVE PRODUCT') # original source code
@@ -73,13 +73,13 @@ def print_customer_update_shop_state(c,s):
         for shop_item in s.stock: # update stop state
             # cost = item.quantity * item.product.price # original source code
             cost=item.quantity*shop_item.product.price # product full cost
-            countShopIterations+=1 # latter compare countNoProductMatch 
+            countShopIterations+=1 # latter compare count_no_product_match 
 
             if item.product.name==shop_item.product.name: # shop stocks product
                 print(f'The cost to {c.name} will be EUR{cost:.2f}') # original source code
                 ui_shop_menu_display('-',13); print() # display purposes only
             else:
-                countNoProductMatch+=1 # determines product existence
+                count_no_product_match+=1 # determines product existence
 
             if item.product.name!=shop_item.product.name: # product not exist
                 continue # continue sanity checking
@@ -89,68 +89,66 @@ def print_customer_update_shop_state(c,s):
                     print(f'The cost to {c.name} will be EUR0.00') # thrown appropriate error
                 else:
                     print(f'(Invalid Shop Quantity: Quantity Limit) >>> {shop_item.quantity:.0f}') # thrown appropriate error
-                    shoppingCartInvoice+=shop_item.quantity*shop_item.product.price # product partial cost 
-                    print(f'The cost to {c.name} will be \
-                        EUR{shop_item.quantity*shop_item.product.price:.2f}') # thrown appropriate error
+                    shopping_cart_invoice+=shop_item.quantity*shop_item.product.price # product partial cost 
+                    print(f'The cost to {c.name} will be EUR{shop_item.quantity*shop_item.product.price:.2f}') # thrown appropriate error
                 ui_shop_menu_display('-',13); print() # display purposes only
-                canFillFullOrder=0 # partial order false
+                can_fill_full_order=0 # partial order false
             elif c.budget<cost: # budget not allowing
                 canOnlyAfford=int(c.budget/shop_item.product.price) # price into budget
                 
                 if canOnlyAfford>=int(c.budget): # complete partial order
                     print(f'Unfortunately {c.name} has a budget of EUR{c.budget:.2f}') # display purposes only
-                    shoppingCartInvoice+=canOnlyAfford*shop_item.product.price # update cart affordability 
+                    shopping_cart_invoice+=canOnlyAfford*shop_item.product.price # update cart affordability 
                     c.budget-=canOnlyAfford*shop_item.product.price # reduce budget accordingly
-                    print(f'{c.name} can only afford {canOnlyAfford} {shop_item.product.name} at a cost of \
-                        EUR{canOnlyAfford*shop_item.product.price:.2f}') # display purposes only
+                    print(f'{c.name} can only afford {canOnlyAfford} {shop_item.product.name} at a cost of EUR{canOnlyAfford*shop_item.product.price:.2f}') # display purposes only
                     item.quantity=canOnlyAfford # quanitity shop state
                 else:
                     item.quantity-=item.quantity # quanitity shop state
                     print(f'Unfortunately {c.name} cannot purchase any {shop_item.product.name}') # display purposes only
                 ui_shop_menu_display('-',13); print() # display purposes only
-                canFillFullOrder=0 # now partial order
+                can_fill_full_order=0 # now partial order
             elif c.budget>=cost: # all going well
-                shoppingCartInvoice+=cost # add to cart
-                c.budget-=shoppingCartInvoice # reduce down budget
+                shopping_cart_invoice+=cost # add to cart
+                c.budget-=shopping_cart_invoice # reduce down budget
             
             shop_item.quantity-=item.quantity # quanitity shop state
 
             if shop_item.quantity<0: # shop negative quantities                
                 shop_item.quantity=0 # quanitity shop state
             
-            countInnerShop+=1 # full partial order
+            count_inner_shop+=1 # full partial order
 
         #
         # onto next customer
         #
-        if countShopIterations==countNoProductMatch: # iteration no match
+        if countShopIterations==count_no_product_match: # iteration no match
             print(f'(Invalid Shop Product: <NOT IN STOCK>)  >>> {item.product.name}') # thrown appropriate error
             print(f'The cost to {c.name} will be EUR0.00') # thrown appropriate error
             ui_shop_menu_display('-',13); print() # display purposes only
 
-        countOuterCustomer+=1 # full partial order                
+        count_outer_customer+=1 # full partial order                
 
     #
     # all customers done
     #
-    if shoppingCartInvoice>0: 
-        if canFillFullOrder==1 and countInnerShop==countOuterCustomer:
-            print(f'(Completed <FULL> Order: Now Due)       >>> EUR{shoppingCartInvoice:.2f}') # display full order
+    if shopping_cart_invoice>0: 
+        if can_fill_full_order==1 and count_inner_shop==count_outer_customer:
+            print(f'(Completed <FULL> Order: Now Due)       >>> EUR{shopping_cart_invoice:.2f}') # display full order
         else:
-            print(f'(Completed <PARTIAL> Order: Now Due)    >>> EUR{shoppingCartInvoice:.2f}') # display partial order
+            print(f'(Completed <PARTIAL> Order: Now Due)    >>> EUR{shopping_cart_invoice:.2f}') # display partial order
     else:
-        print(f'(Invalid Order: <NIL> Shopping Cart)    >>> EUR{shoppingCartInvoice:.2f}') # thrown appropriate error
+        print(f'(Invalid Order: <NIL> Shopping Cart)    >>> EUR{shopping_cart_invoice:.2f}') # thrown appropriate error
 
-    s.cash+=shoppingCartInvoice # cash shop state
+    s.cash+=shopping_cart_invoice # cash shop state
 
     return s # full shop state
 
 def print_shop(s): # original source code
-    """Function printShop having no original functionality changed:
+    """Function print_shop having no original functionality changed:
     i. minor amendments for display purposes only.
 """ 
     print(f'Shop has {s.cash:.2f} in cash') # original source code
-    ui_shop_menu_display('_',24); print(); print()  # display partial order
+    ui_shop_menu_display('_',24); print(); print() # display partial order
     for item in s.stock: # original source code
         print_product(item.product) # original source code
         print(f'The Shop has {item.quantity:.0f} of the above') # original source code
@@ -268,8 +266,8 @@ def create_live_mode_checkout(cart):
 
         try:
             user=int(user) # correct format integer
-            if user<0 or user>len(live_menu_choice)-1: # range interval [0,4)
-                raise ShopMenuChoiceError('COMMENT: allowable input [0,3]') # outside choice range
+            if user<0 or user>len(live_menu_choice)-1: # range interval [0,2)
+                raise ShopMenuChoiceError('COMMENT: allowable input [0,1]') # outside choice range
         except (ValueError, # check for characters
             ShopMenuChoiceError): # custom exception created 
             print(end="") # shop.c allows newline
